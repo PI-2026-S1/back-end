@@ -1,0 +1,29 @@
+# --- Python & Ambiente Virtual ---
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Machine Learning & Dados ---
+# Ignora datasets pesados e modelos treinados (use Git LFS se precisar subir)
+uploads/
+temp_videos/
+data/
+*.pth
+*.h5
+*.weights
+
+# --- IDEs & Editores ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Sistema Operacional ---
+.DS_Store
+Thumbs.db
+
+# --- Vídeo Teste ---
+video_teste.mp4
