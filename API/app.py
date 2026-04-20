@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import os
 import uuid
 from werkzeug.utils import secure_filename
+from swagger.swagger_blueprint import swagger_bp
 
 app = Flask(__name__)
 
@@ -46,6 +47,9 @@ def detectar_deepfake():
 
     except Exception as e:
         return jsonify({"erro": f"Erro no processamento: {str(e)}"}), 500
+    
+
+app.register_blueprint(swagger_bp)
 
 if __name__ == "__main__":
     print("Iniciando API de Detecção de Deepfakes...")

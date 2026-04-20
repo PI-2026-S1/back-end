@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>API Docs</title>
+    <link rel="stylesheet" type="text/css" href="/swagger/static/swagger-ui.css" />
+    <style>
+      body { margin: 0; background: #fafafa; }
+    </style>
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+
+    <script src="/swagger/static/swagger-ui-bundle.js"></script>
+
+    <script>
+      window.onload = function() {
+        SwaggerUIBundle({
+          url: "/swagger/openapi.yaml",
+          dom_id: '#swagger-ui',
+        });
+      };
+    </script>
+  </body>
+</html>

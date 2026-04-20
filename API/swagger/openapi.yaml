@@ -1,0 +1,126 @@
+openapi: 3.0.0
+info:
+  title: Deepfake Detection AI API
+  description: >
+    API for analyzing videos to detect digital and biological inconsistencies 
+    (deepfakes) using OpenCV and PyTorch.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000
+    description: Local Development Server
+
+paths:
+  /api/detect:
+    post:
+      summary: Upload video for analysis
+      description: Receives a video file and starts the frame extraction and AI inference process.
+      tags:
+        - Detection
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                video:
+                  type: string
+                  format: binary
+                  description: Video file (.mp4, .avi, .mov)
+      responses:
+        '202':
+          description: Accepted. Analysis job created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    example: "550e8400-e29b-41d4-a716-446655440000"
+                  status:
+                    type: string
+                    example: "processing"
+        '400':
+          description: Invalid file format or missing file.
+
+  /api/status/{job_id}:
+    get:
+      summary: Check analysis status
+      description: Returns the current state of a specific analysis job.
+      tags:
+        - Detection
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [processing, completed, failed]
+                  progress:
+                    type: integer
+                    example: 45
+
+  /api/results/{job_id}:
+    get:
+      summary: Get final analysis report
+      description: Returns the deepfake probability and detected artifacts.
+      tags:
+        - Detection
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Analysis results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fake_probability:
+                    type: number
+                    example: 0.89
+                  verdict:
+                    type: string
+                    example: "Highly Suspicious"
+                  artifacts:
+                    type: array
+                    items:
+                      type: string
+                    example: ["irregular blinking", "unnatural skin texture"]
+        '404':
+          description: Job ID not found.
+
+  /api/health:
+    get:
+      summary: Server health check
+      tags:
+        - System
+      responses:
+        '200':
+          description: Server is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
