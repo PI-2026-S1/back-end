@@ -1,33 +1,28 @@
-from flask import Flask, request, jsonify
-import os
-import cv2  # OpenCV para o processamento de vídeo
-from werkzeug.utils import secure_filename
+from flask import Blueprint, request, jsonify
+import uuid
 
-app = Flask(__name__)
-UPLOAD_FOLDER = 'temp_videos'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# blueprint para organizar as rotas
+detection_bp = Blueprint('detection', __name__)
 
-@app.route('/api/detectar', methods=['POST'])
-def detectar_deepfake():
-    # 1. Verificar se o vídeo foi enviado pelo Flutter
-    if 'video' not in request.files:
-        return jsonify({"erro": "Nenhum ficheiro enviado"}), 400
+# temporário até que tenhamos um sistema de filas e processamento assíncrono
+analysis_jobs = {}
+
+@detection_bp.route('/detect', methods=['POST'])
+def start_detection():
+    job_id = str(uuid.uuid4())
+    analysis_jobs[job_id] = {"status": "processing", "progress": 0}
     
-    file = request.files['video']
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
+    # TODO iniciar processo de análise assíncrona
+    # TODO atualizar status e progresso conforme o processo avança
+    # TODO remover job da lista quando concluído
+    # TODO implementar sistema de filas (ex: Celery) para processar os vídeos em background
+    # TODO armazenar resultados em banco de dados ou sistema de arquivos para consulta posterior
 
-    try:
-        # 2. Chamada ao Core de Visão Computacional (Placeholder)
-        # Aqui vais integrar a lógica de extração de frames e o PyTorch
-        probabilidade = 0.85  # Exemplo de retorno da IA
-        
-        return jsonify({
-            "status": "sucesso",
-            "probabilidade_fake": probabilidade,
-            "mensagem": "Análise concluída com sucesso"
-        }), 200
+    return jsonify({"job_id": job_id, "status": "processing"}), 202
 
-    except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+@detection_bp.route('/status/<job_id>', methods=['GET'])
+def check_status(job_id):
+    job = analysis_jobs.get(job_id)
+    if not job:
+        return jsonify({"error": "Job not found"}), 404
+    return jsonify({"job_id": job_id, **job}), 200

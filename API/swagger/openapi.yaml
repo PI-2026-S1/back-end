@@ -4,7 +4,7 @@ info:
   description: >
     API for analyzing videos to detect digital and biological inconsistencies 
     (deepfakes) using OpenCV and PyTorch.
-  version: 1.0.0
+  version: 0.1.0
 
 servers:
   - url: http://localhost:5000
