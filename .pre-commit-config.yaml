@@ -1,0 +1,16 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace  # Remove espaços inúteis no fim das linhas
+      - id: end-of-file-fixer    # Garante que o arquivo termina com uma linha vazia
+      - id: check-yaml           # Valida o seu swagger.yaml
+
+  - repo: local
+    hooks:
+      - id: run-tests
+        name: Run Flask Tests
+        entry: python -m unittest discover -s API/__tests__ -p 'test_*.py'
+        language: system
+        pass_filenames: false
+        always_run: true

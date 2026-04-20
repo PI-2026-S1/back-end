@@ -1,30 +1,24 @@
 @echo off
-echo ==================================================
-echo Configurando Ambiente de Detecção de Deepfakes
-echo ==================================================
+echo --- Iniciando Setup do Backend (Windows) ---
 
-:: 1. Criar ambiente virtual para não poluir o Python global
-echo Criando ambiente virtual (venv)...
-python -m venv venv
-
-:: 2. Ativar o ambiente virtual
-echo Ativando ambiente virtual...
-call venv\Scripts\activate
-
-:: 3. Atualizar o pip
-echo Atualizando o pip...
-python -m pip install --upgrade pip
-
-:: 4. Instalar as dependências do projeto
-if exist requirements.txt (
-    echo Instalando dependencias do requirements.txt...
-    pip install -r requirements.txt
+:: 1. Criar ambiente virtual se não existir
+if not exist venv (
+    python -m venv venv
+    echo [OK] Ambiente virtual criado.
 ) else (
-    echo [ERRO] Arquivo requirements.txt nao encontrado!
+    echo [INFO] Ambiente virtual ja existe.
 )
 
-echo ==================================================
-echo Setup concluido! Para comecar, use: call venv\Scripts\activate
-echo Depois, execute a API com: python app.py
-echo ==================================================
+:: 2. Ativar o venv e instalar dependencias
+echo [INFO] Instalando dependencias...
+call venv\Scripts\activate
+pip install -r requirements.txt
+
+:: 3. Configurar Git Hooks
+echo [INFO] Configurando travas de seguranca do Git (pre-commit)...
+pre-commit install
+
+echo --- Setup concluido com sucesso! ---
+echo Para rodar a API: python api/app.py
+echo Para rodar os testes: python -m unittest discover __tests__
 pause

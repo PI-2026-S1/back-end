@@ -5,3 +5,4 @@ torchvision
 numpy
 werkzeug
 requests
+pre-commit

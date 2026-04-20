@@ -1,31 +1,23 @@
 #!/bin/bash
 
-echo "=================================================="
-echo "Configurando Ambiente de Detecção de Deepfakes (Unix)"
-echo "=================================================="
+echo "--- Iniciando Setup do Backend ---"
 
-# 1. Criar ambiente virtual
-echo "Criando ambiente virtual (venv)..."
-python3 -m venv venv
-
-# 2. Ativar o ambiente virtual
-echo "Ativando ambiente virtual..."
-source venv/bin/activate
-
-# 3. Atualizar o pip
-echo "Atualizando o pip..."
-pip install --upgrade pip
-
-# 4. Instalar as dependências
-if [ -f requirements.txt ]; then
-    echo "Instalando dependencias do requirements.txt..."
-    pip install -r requirements.txt
-else
-    echo "[ERRO] Arquivo requirements.txt nao encontrado!"
+# 1. Criar e ativar ambiente virtual (se não existir)
+if [ ! -d "venv" ]; then
+    python -m venv venv
+    echo "Ambiente virtual criado."
 fi
 
-echo "=================================================="
-echo "Setup concluido!"
-echo "Para comecar, use: source venv/bin/activate"
-echo "Depois, execute a API com: python app.py"
-echo "=================================================="
+# Ativa o venv (compatível com Linux/macOS/Git Bash)
+source venv/Scripts/activate || source venv/bin/activate
+
+# 2. Instalar dependências
+echo "Instalando dependências do requirements.txt..."
+pip install -r requirements.txt
+
+# 3. Configurar Git Hooks (Pre-commit)
+echo "Configurando travas de segurança do Git (pre-commit)..."
+pre-commit install
+
+echo "--- Setup concluído com sucesso! ---"
+echo "Para rodar os testes: python -m unittest discover __tests__"

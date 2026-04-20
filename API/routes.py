@@ -11,7 +11,7 @@ analysis_jobs = {}
 def start_detection():
     job_id = str(uuid.uuid4())
     analysis_jobs[job_id] = {"status": "processing", "progress": 0}
-    
+
     # TODO iniciar processo de análise assíncrona
     # TODO atualizar status e progresso conforme o processo avança
     # TODO remover job da lista quando concluído
@@ -26,3 +26,31 @@ def check_status(job_id):
     if not job:
         return jsonify({"error": "Job not found"}), 404
     return jsonify({"job_id": job_id, **job}), 200
+
+@detection_bp.route('/results/<job_id>', methods=['GET'])
+def get_results(job_id):
+    job = analysis_jobs.get(job_id)
+
+    # 1. verifica se o Job sequer existe
+    if not job:
+        return jsonify({"error": "Job not found"}), 404
+
+    # 2. verifica se o processamento já terminou
+    if job["status"] != "completed":
+        return jsonify({
+            "error": "Analysis still in progress",
+            "job_id": job_id,
+            "status": job["status"]
+        }), 202 # 202 indica que a requisição foi aceita mas o processamento ainda não terminou (consulte os textos sagrados https://http.cat/202)
+
+    # 3. retorna os dados finais (mock por enquanto)
+    return jsonify({
+        "job_id": job_id,
+        "status": "completed",
+        "analysis_date": "2026-04-20T17:00:00Z",
+        "results": {
+            "fake_probability": 0.89,
+            "verdict": "fake naty",
+            "detected_artifacts": ["irregular blinking", "unnatural skin texture"]
+        }
+    }), 200
