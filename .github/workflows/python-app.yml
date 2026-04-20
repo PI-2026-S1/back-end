@@ -26,11 +26,14 @@ jobs:
 
     - name: Run API and Tests
       run: |
-        # Inicia a API em background (o & é crucial aqui)
+        # Adiciona a raiz do projeto ao path para o Python achar as pastas swagger e API
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+        # Inicia a API
         python API/app.py &
 
-        # Aguarda a API estabilizar
-        sleep 5
+        # Espera a API e o Swagger subirem
+        sleep 10
 
-        # Roda o unittest apontando para a pasta modular
+        # Roda os testes
         python -m unittest discover -s API/__tests__ -p 'test_*.py'
