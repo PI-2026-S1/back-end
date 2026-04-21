@@ -8,6 +8,7 @@ detection_bp = Blueprint('detection', __name__)
 analysis_jobs = {}
 
 # TODO implementar autenticação e autorização para proteger as rotas de análise
+# TODO implementar validação de arquivos de vídeo (tamanho, formato, etc) para evitar sobrecarga do sistema
 
 @detection_bp.route('/health', methods=['GET'])
 def health_check():
