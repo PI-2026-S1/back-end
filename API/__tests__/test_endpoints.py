@@ -6,13 +6,13 @@ import uuid
 class TestApiRoutes(unittest.TestCase):
     BASE_URL = "http://127.0.0.1:5000/api"
 
-    # def test_health_endpoint(self):
-    #     """Teste para garantir que o servidor está online e saudável"""
-    #     print("\nTesting GET /health...")
-    #     response = requests.get(f"{self.BASE_URL}/health")
+    def test_health_endpoint(self):
+        """Teste para garantir que o servidor está online e saudável"""
+        print("\nTesting GET /health...")
+        response = requests.get(f"{self.BASE_URL}/health")
 
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(response.json().get("status"), "healthy")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json().get("status"), "healthy")
 
     def test_status_endpoint_valid_id(self):
         """Teste para verificar o status de um job que (supostamente) existe"""
@@ -40,6 +40,7 @@ class TestApiRoutes(unittest.TestCase):
         self.assertIn("error", response.json())
 
     def test_results_while_processing(self):
+        print("Testing GET /results/ com ID em processamento...")
         # Simula um job que acabamos de criar
         post_res = requests.post(f"{self.BASE_URL}/detect", files={'video': open('video_teste.mp4', 'rb')})
         job_id = post_res.json().get("job_id")

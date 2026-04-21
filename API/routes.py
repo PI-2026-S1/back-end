@@ -7,6 +7,12 @@ detection_bp = Blueprint('detection', __name__)
 # temporário até que tenhamos um sistema de filas e processamento assíncrono
 analysis_jobs = {}
 
+# TODO implementar autenticação e autorização para proteger as rotas de análise
+
+@detection_bp.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 @detection_bp.route('/detect', methods=['POST'])
 def start_detection():
     job_id = str(uuid.uuid4())
@@ -14,7 +20,6 @@ def start_detection():
 
     # TODO iniciar processo de análise assíncrona
     # TODO atualizar status e progresso conforme o processo avança
-    # TODO remover job da lista quando concluído
     # TODO implementar sistema de filas (ex: Celery) para processar os vídeos em background
     # TODO armazenar resultados em banco de dados ou sistema de arquivos para consulta posterior
 
@@ -42,15 +47,17 @@ def get_results(job_id):
             "job_id": job_id,
             "status": job["status"]
         }), 202 # 202 indica que a requisição foi aceita mas o processamento ainda não terminou (consulte os textos sagrados https://http.cat/202)
+    if job["status"] == "completed":
+        del analysis_jobs[job_id]
 
-    # 3. retorna os dados finais (mock por enquanto)
-    return jsonify({
-        "job_id": job_id,
-        "status": "completed",
-        "analysis_date": "2026-04-20T17:00:00Z",
-        "results": {
-            "fake_probability": 0.89,
-            "verdict": "fake naty",
-            "detected_artifacts": ["irregular blinking", "unnatural skin texture"]
-        }
-    }), 200
+        # 3. retorna os dados finais (mock por enquanto)
+        return jsonify({
+            "job_id": job_id,
+            "status": "completed",
+            "analysis_date": "2026-04-20T17:00:00Z",
+            "results": {
+                "fake_probability": 0.89,
+                "verdict": "fake naty",
+                "detected_artifacts": ["irregular blinking", "unnatural skin texture"]
+            }
+        }), 200
