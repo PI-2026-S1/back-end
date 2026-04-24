@@ -4,7 +4,7 @@ import uuid
 # python API/__tests__/test_endpoints.py
 
 class TestApiRoutes(unittest.TestCase):
-    BASE_URL = "http://127.0.0.1:5000/api"
+    BASE_URL = "http://127.0.0.1:1234/api"
 
     def test_health_endpoint(self):
         """Teste para garantir que o servidor está online e saudável"""
