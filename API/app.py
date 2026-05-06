@@ -1,7 +1,7 @@
 from flask import Flask
 from flasgger import Swagger
-from routes import detection_bp
-from swagger.swagger_blueprint import swagger_bp
+from API.routes import detection_bp
+from API.swagger.swagger_blueprint import swagger_bp
 
 app = Flask(__name__)
 swagger = Swagger(app)
