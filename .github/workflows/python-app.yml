@@ -12,28 +12,33 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: '3.12' # Versão ideal para evitar erros de compatibilidade
 
-    - name: Install dependencies
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1 ffmpeg libglib2.0-0
+
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Setup Test Video
+    - name: Generate Dummy Video for Testing
       run: |
-        # Cria um arquivo de vídeo fake para o teste de integração não falhar
-        touch video_teste.mp4
+        # Gera um vídeo real de 1 segundo (cor preta, 1fps) para o OpenCV conseguir ler
+        ffmpeg -f lavfi -i color=c=black:s=640x480:d=1 -vf "fps=1" video_teste.mp4
 
     - name: Run API and Tests
       run: |
-        # Adiciona a raiz do projeto ao path para o Python achar as pastas swagger e API
+        # Garante que as pastas API e core sejam visíveis
         export PYTHONPATH=$PYTHONPATH:$(pwd)
 
-        # Inicia a API
+        # Inicia a API em background
         python API/app.py &
 
-        # Espera a API e o Swagger subirem
+        # Espera a API subir (10s é seguro)
         sleep 10
 
-        # Roda os testes
+        # Roda os testes usando o módulo unittest
         python -m unittest discover -s API/__tests__ -p 'test_*.py'
