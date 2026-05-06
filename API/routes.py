@@ -3,6 +3,7 @@ import uuid
 import threading
 import os
 from core.processor import process_video_task
+from functools import wraps
 
 # blueprint para organizar as rotas
 detection_bp = Blueprint('detection', __name__)
@@ -17,10 +18,53 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 # TODO implementar validação de arquivos de vídeo (tamanho, formato, etc) para evitar sobrecarga do sistema
 
+# ─── Auth ──────────────────────────────────────────────────────────────────────
+
+VALID_API_KEYS = set(
+    key.strip()
+    for key in os.environ.get("API_KEYS", "").split(",")
+    if key.strip()
+)
+print(f"[DEBUG] API Keys carregadas: {VALID_API_KEYS}")  # remover depois
+
+# rotas que não precisam de autenticação (com e sem prefixo do blueprint)
+PUBLIC_ROUTES = {"/health", "/api/health"}
+
+def require_api_key(f):
+    """Decorator que protege uma rota com API Key."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        api_key = request.headers.get("X-API-Key")
+
+        if not api_key:
+            return jsonify({"error": "Missing API Key", "hint": "Provide it via X-API-Key header"}), 401
+
+        if api_key not in VALID_API_KEYS:
+            return jsonify({"error": "Invalid or unauthorized API Key"}), 403
+
+        return f(*args, **kwargs)
+    return decorated
+
+# ─── Hooks ─────────────────────────────────────────────────────────────────────
+
 # TODO implementar autenticação e autorização para proteger as rotas de análise
 @detection_bp.before_request
-def log_request_info():
-    pass
+def handle_before_request():
+    print(f"Received {request.method} request to {request.path} from {request.remote_addr}")
+
+    # pula auth para rotas públicas
+    if request.path in PUBLIC_ROUTES:
+        return
+
+    api_key = request.headers.get("X-API-Key")
+
+    if not api_key:
+        return jsonify({"error": "Missing API Key", "hint": "Provide it via X-API-Key header"}), 401
+
+    if api_key not in VALID_API_KEYS:
+        return jsonify({"error": "Invalid or unauthorized API Key"}), 403
+
+# ─── Rotas ─────────────────────────────────────────────────────────────────────
 
 @detection_bp.route('/health', methods=['GET'])
 def health_check():

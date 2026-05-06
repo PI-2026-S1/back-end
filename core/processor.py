@@ -37,6 +37,8 @@ def process_video_task(job_id, video_path, jobs_dict):
         print(f"[*] Iniciando Job {job_id}: {total_frames} frames detectados.")
 
         predictions = []
+        label = "real"  # valor padrão caso nenhum frame seja processado
+        media = 0.0     # valor padrão
 
         while True:
             current_frame_idx = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
@@ -61,12 +63,10 @@ def process_video_task(job_id, video_path, jobs_dict):
             cap.set(cv2.CAP_PROP_POS_FRAMES, current_frame_idx + frame_interval)
 
             time.sleep(0.01)
-            media = sum(predictions) / len(predictions) if predictions else 0
-            is_fake = media > 0.5
-            if is_fake:
-                label = "fake"
-            else:
-                label = "real"
+
+        # Calcula resultado final APÓS o loop terminar (não a cada frame)
+        media = sum(predictions) / len(predictions) if predictions else 0.0
+        label = "fake" if media > 0.5 else "real"
 
         # Finaliza o Job com sucesso
         jobs_dict[job_id].update({
@@ -74,7 +74,7 @@ def process_video_task(job_id, video_path, jobs_dict):
             "progress": 100,
             "result": {
                 "label": label,
-                "confidence": 0.89,
+                "confidence": round(media, 2),
                 "verdict": f"{label} naty",
                 "message": "Analise concluida com sucesso."
             }
@@ -82,8 +82,10 @@ def process_video_task(job_id, video_path, jobs_dict):
         print(f"[+] Job {job_id} concluído com sucesso.")
 
     except Exception as e:
-        jobs_dict[job_id].update({"status": "error", "error": str(e)})
-        print(f"[!] Erro no Job {job_id}: {str(e)}")
+            import traceback
+            error_msg = traceback.format_exc()
+            jobs_dict[job_id].update({"status": "error", "error": error_msg})
+            print(f"[!] Erro no Job {job_id}:\n{error_msg}")
 
     finally:
         # 1. Garante que o vídeo seja liberado

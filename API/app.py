@@ -1,7 +1,10 @@
 from flask import Flask
 from flasgger import Swagger
+from dotenv import load_dotenv  # adiciona
 from API.routes import detection_bp
 from API.swagger.swagger_blueprint import swagger_bp
+
+load_dotenv()  # adiciona — carrega o .env antes de tudo
 
 app = Flask(__name__)
 swagger = Swagger(app)

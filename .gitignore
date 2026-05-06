@@ -5,6 +5,7 @@ env/
 __pycache__/
 *.py[cod]
 *$py.class
+.env
 
 # --- Machine Learning & Dados ---
 # Ignora datasets pesados e modelos treinados (use Git LFS se precisar subir)
