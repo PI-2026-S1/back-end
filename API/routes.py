@@ -7,8 +7,12 @@ detection_bp = Blueprint('detection', __name__)
 # temporário até que tenhamos um sistema de filas e processamento assíncrono
 analysis_jobs = {}
 
-# TODO implementar autenticação e autorização para proteger as rotas de análise
 # TODO implementar validação de arquivos de vídeo (tamanho, formato, etc) para evitar sobrecarga do sistema
+
+# TODO implementar autenticação e autorização para proteger as rotas de análise
+@detection_bp.before_request
+def log_request_info():
+    pass
 
 @detection_bp.route('/health', methods=['GET'])
 def health_check():
