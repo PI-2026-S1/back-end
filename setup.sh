@@ -13,7 +13,7 @@ if [ ! -d "venv" ]; then
 fi
 
 # 2. Ativa o venv (focando no padrão Unix/macOS)
-source venv/bin/activate
+source ./venv/bin/activate
 
 # Atualiza o pip dentro do venv para evitar avisos
 pip install --upgrade pip
@@ -29,4 +29,5 @@ pip install pre-commit
 pre-commit install
 
 echo "--- Setup concluído com sucesso! ---"
-echo "Para rodar os testes: python -m unittest discover __tests__"
+echo "Para rodar o servidor: python3 -m API.app"
+echo "Para rodar os testes: python3 -m unittest discover API/__tests__"
