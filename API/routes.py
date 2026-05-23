@@ -5,6 +5,11 @@ import os
 from core.processor import process_video_task
 from functools import wraps
 
+# variáveis para configuração de arquivo de vídeo
+ALLOWED_EXTENSIONS = {"mp4"}
+MAX_FILE_SIZE_MB = 500
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
 # blueprint para organizar as rotas
 detection_bp = Blueprint('detection', __name__)
 
@@ -16,7 +21,10 @@ UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# TODO implementar validação de arquivos de vídeo (tamanho, formato, etc) para evitar sobrecarga do sistema
+# função auxiliar para validar extensão de arquivo
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # ─── Auth ──────────────────────────────────────────────────────────────────────
 
@@ -77,6 +85,20 @@ def start_detection():
         return jsonify({"error": "No video file provided"}), 400
 
     video_file = request.files['video']
+
+    # ── Validações ──────────────────────────────────────────────────
+    if not allowed_file(video_file.filename):
+        return jsonify({"error": "Invalid file type. Only .mp4 is allowed"}), 415
+
+    video_file.stream.seek(0, 2)          # vai até o fim do stream
+    file_size = video_file.stream.tell()  # pega o tamanho em bytes
+    video_file.stream.seek(0)             # volta ao início antes de salvar
+
+    if file_size > MAX_FILE_SIZE_BYTES:
+        return jsonify({
+            "error": f"File too large. Maximum size is {MAX_FILE_SIZE_MB}MB"
+        }), 413
+    # ────────────────────────────────────────────────────────────────
 
     # TODO implementar sistema de filas (ex: Celery) para processar os vídeos em background
 
